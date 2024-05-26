@@ -38,23 +38,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Switch display between counter and fields every 'viewSpeed' milliseconds
     setInterval(switchDisplay, viewSpeed);
-
-    // Additional script to update time every second
-    setInterval(function() {
-        let currentTime = Date.now();
-        let timeDifference = currentTime - unixTimestamp;
-
-        if (timeDifference >= speed) {
-            // Calculate the number of increments missed
-            let missedIncrements = Math.floor(timeDifference / speed);
-            // Update the counter value based on missed increments
-            counterValue += missedIncrements;
-            
-            if (isCounterVisible) {
-                countElement.textContent = counterValue;
-            }
-            // Update unix timestamp to the last accurate update time
-            unixTimestamp += missedIncrements * speed;
-        }
-    }, 1000);
 });
