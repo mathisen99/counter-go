@@ -38,6 +38,8 @@ func main() {
 			w.Header().Set("Content-Type", "text/css")
 		case ".ttf":
 			w.Header().Set("Content-Type", "font/ttf")
+		case ".js":
+			w.Header().Set("Content-Type", "application/javascript")
 		}
 		fileServer.ServeHTTP(w, r)
 	})))
