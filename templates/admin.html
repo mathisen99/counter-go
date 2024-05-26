@@ -14,42 +14,54 @@
                 <div id="settings">
                     <h2>Settings</h2>
                     <form action="/admin" method="post">
-                        <div>
-                            <label for="start">Counter Value:</label>
-                            <input type="text" id="start" name="start" value="{{.Settings.Start}}" required>
+                        <div id="general-settings">
+                            <h3>General Settings</h3>
+                            <div>
+                                <label for="start">Counter Value:</label>
+                                <input type="text" id="start" name="start" value="{{.Settings.Start}}" required>
+                            </div>
+                            <div>
+                                <label for="speed">Counter Speed (ms):</label>
+                                <input type="text" id="speed" name="speed" value="{{.Settings.Speed}}" required>
+                            </div>
+                            <div>
+                                <label for="time_counter_display">Time Counter Display (ms):</label>
+                                <input type="number" id="time_counter_display" name="time_counter_display" value="{{.Settings.TimeCounterDisplay}}" min="100" step="100" required>
+                            </div>
+                            <div>
+                                <label for="view_speed">Field View Speed (ms):</label>
+                                <input type="number" id="view_speed" name="view_speed" value="{{.Settings.ViewSpeed}}" min="100" step="100" required>
+                            </div>
                         </div>
-                        <div>
-                            <label for="speed">Counter Speed (ms):</label>
-                            <input type="text" id="speed" name="speed" value="{{.Settings.Speed}}" required>
+
+                        <div id="font-settings">
+                            <h3>Font Settings</h3>
+                            <div>
+                                <label for="font_size">General Font Size (px):</label>
+                                <input type="number" id="font_size" name="font_size" value="{{.Settings.FontSize}}" min="10" step="1" required>
+                            </div>
+                            <div>
+                                <label for="logo_text">Logo Text:</label>
+                                <input type="text" id="logo_text" name="logo_text" value="{{.Settings.LogoText}}" required>
+                            </div>
+                            <div>
+                                <label for="logo_font_size">Logo Font Size (px):</label>
+                                <input type="number" id="logo_font_size" name="logo_font_size" value="{{.Settings.LogoFontSize}}" min="10" step="1" required>
+                            </div>
                         </div>
-                        <div>
-                            <label for="time_counter_display">Time Counter Display (ms):</label>
-                            <input type="number" id="time_counter_display" name="time_counter_display" value="{{.Settings.TimeCounterDisplay}}" min="100" step="100" required>
+
+                        <div id="field-settings">
+                            <h3>Field Settings</h3>
+                            {{range $index, $field := .Fields}}
+                            <div class="checkbox-text-field">
+                                <label for="field{{$field.ID}}_text">Field {{$field.ID}} Text:</label>
+                                <input type="text" id="field{{$field.ID}}_text" name="field_text{{$field.ID}}" value="{{$field.FieldText}}">
+                                <input type="checkbox" id="show_field{{$field.ID}}" name="show_field{{$field.ID}}" {{if eq $field.ShowField "on"}}checked{{end}}>
+                                <label for="show_field{{$field.ID}}">Show Field {{$field.ID}}</label>
+                            </div>
+                            {{end}}
                         </div>
-                        <div>
-                            <label for="view_speed">Field View Speed (ms):</label>
-                            <input type="number" id="view_speed" name="view_speed" value="{{.Settings.ViewSpeed}}" min="100" step="100" required>
-                        </div>
-                        <div>
-                            <label for="font_size">Counter Font Size (px):</label>
-                            <input type="number" id="font_size" name="font_size" value="{{.Settings.FontSize}}" min="10" step="1" required>
-                        </div>
-                        <div>
-                            <label for="logo_text">Logo Text:</label>
-                            <input type="text" id="logo_text" name="logo_text" value="{{.Settings.LogoText}}" required>
-                        </div>
-                        <div>
-                            <label for="logo_font_size">Logo Font Size (px):</label>
-                            <input type="number" id="logo_font_size" name="logo_font_size" value="{{.Settings.LogoFontSize}}" min="10" step="1" required>
-                        </div>
-                        {{range $index, $field := .Fields}}
-                        <div class="checkbox-text-field">
-                            <label for="field{{$field.ID}}_text">Field {{$field.ID}} Text:</label>
-                            <input type="text" id="field{{$field.ID}}_text" name="field_text{{$field.ID}}" value="{{$field.FieldText}}">
-                            <input type="checkbox" id="show_field{{$field.ID}}" name="show_field{{$field.ID}}" {{if eq $field.ShowField "on"}}checked{{end}}>
-                            <label for="show_field{{$field.ID}}">Show Field {{$field.ID}}</label>
-                        </div>
-                        {{end}}
+
                         <div>
                             <button type="submit">Update</button>
                         </div>
@@ -94,13 +106,15 @@
                     <code>IMG=image.png SIZE=50%</code>
                     <p>You can include multiple images and sizes in the same field text:</p>
                     <code>IMG=image.png SIZE=20% We Hit a Record! IMG=image.png SIZE=20%</code>
-
+                </div>
+                
+                <div id="field-descriptions">
                     <h2>Field Descriptions</h2>
                     <p><strong>Counter Value:</strong> This is the starting value of the counter.</p>
                     <p><strong>Counter Speed (ms):</strong> This sets how fast the counter should increase, in milliseconds. For example, a value of 2000 means the counter increases by one unit every 2 seconds.</p>
                     <p><strong>Time Counter Display (ms):</strong> This sets how long the counter value is displayed before switching to field text, in milliseconds.</p>
                     <p><strong>Field View Speed (ms):</strong> This sets how long each field text is displayed before switching, in milliseconds.</p>
-                    <p><strong>Counter Font Size (px):</strong> This sets the font size of the counter and field text, in pixels.</p>
+                    <p><strong>General Font Size (px):</strong> This sets the font size of the counter and field text, in pixels.</p>
                     <p><strong>Logo Text:</strong> The text to be displayed above the counter.</p>
                     <p><strong>Logo Font Size (px):</strong> This sets the font size of the logo text, in pixels.</p>
                     <p><strong>Field Text:</strong> The text to be displayed. You can include images using the IMG parameter and specify their size using the SIZE parameter.</p>

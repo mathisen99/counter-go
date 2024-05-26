@@ -58,5 +58,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     setInterval(updateCounter, speed);
-    setTimeout(switchDisplay, timeCounterDisplay);
+    setTimeout(switchDisplay, timeCounterDisplay); // Start the switch display after the counter has been displayed twice
 });
