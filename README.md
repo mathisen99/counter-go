@@ -1,2 +1,1 @@
-# counter-go
-# counter-go
+# Go counter

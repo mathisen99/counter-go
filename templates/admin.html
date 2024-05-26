@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/admin.css">
+    <title>Admin Page</title>
+</head>
+<body>
+    <h1>Admin Page</h1>
+    <form action="/admin" method="post">
+        <label for="start">Start:</label>
+        <input type="text" id="start" name="start" value="{{.Settings.Start}}">
+        <br>
+        <label for="speed">Speed:</label>
+        <input type="text" id="speed" name="speed" value="{{.Settings.Speed}}">
+        <br>
+        {{range $index, $field := .Fields}}
+        <div class="checkbox-text-field">
+            <label for="show_field{{$field.ID}}">Show Field {{$field.ID}}:</label>
+            <input type="text" id="field{{$field.ID}}_text" name="field_text{{$field.ID}}" value="{{$field.FieldText}}">
+            <input type="checkbox" id="show_field{{$field.ID}}" name="show_field{{$field.ID}}" {{if eq $field.ShowField "on"}}checked{{end}}>
+        </div>
+        {{end}}
+        <label for="view_speed">View Speed (ms):</label>
+        <input type="number" id="view_speed" name="view_speed" value="{{.Settings.ViewSpeed}}" min="100" step="100">
+        <br>
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>
