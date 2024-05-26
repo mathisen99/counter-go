@@ -217,7 +217,7 @@ func AdminPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
