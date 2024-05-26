@@ -44,10 +44,6 @@ vendor/
 # Compiled binary
 main
 
-# Static files
-public/js/script.js
-public/css/style.css
-
 # SQLite database file
 settings.db
 
