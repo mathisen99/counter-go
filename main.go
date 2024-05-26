@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"counter/backend"
 
@@ -32,14 +34,10 @@ func main() {
 	fs := http.Dir("./public")
 	fileServer := http.FileServer(fs)
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ext := filepath.Ext(r.URL.Path)
-		switch ext {
-		case ".css":
-			w.Header().Set("Content-Type", "text/css")
-		case ".ttf":
-			w.Header().Set("Content-Type", "font/ttf")
-		case ".js":
-			w.Header().Set("Content-Type", "application/javascript")
+		// Determine the content type based on the file extension
+		ext := strings.ToLower(filepath.Ext(r.URL.Path))
+		if mimeType := mime.TypeByExtension(ext); mimeType != "" {
+			w.Header().Set("Content-Type", mimeType)
 		}
 		fileServer.ServeHTTP(w, r)
 	})))
