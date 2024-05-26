@@ -42,10 +42,14 @@ func main() {
 		fileServer.ServeHTTP(w, r)
 	})))
 
+	// Serve images from the "images" directory
+	router.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir("./images"))))
+
 	// Define routes
 	router.HandleFunc("/", backend.HomeHandler).Methods("GET")
 	router.HandleFunc("/admin", backend.AdminHandler).Methods("GET")
 	router.HandleFunc("/admin", backend.AdminPostHandler).Methods("POST")
+	router.HandleFunc("/upload", backend.UploadHandler).Methods("POST")
 	router.HandleFunc("/update", backend.UpdateHandler).Methods("POST")
 
 	// Load settings on startup

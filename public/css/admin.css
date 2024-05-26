@@ -1,26 +1,33 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
-    padding: 50px;
+    padding: 20px;
 }
 
 h1 {
     color: #333;
     text-align: center;
+    margin-bottom: 20px;
 }
 
-form {
+.container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.form-section, .examples-section {
     background-color: #fff;
     border-radius: 5px;
     padding: 20px;
     max-width: 500px;
-    margin: 0 auto;
+    width: 100%;
     box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
 }
 
 label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     color: #666;
 }
 
@@ -30,12 +37,13 @@ input[type="number"] {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .checkbox-text-field {
     display: flex;
     align-items: center;
+    margin-bottom: 15px;
 }
 
 .checkbox-text-field input[type="checkbox"] {
@@ -51,8 +59,66 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-bottom: 15px;
 }
 
 button:hover {
-    background-color: #0e8712;
+    background-color: #0c6b10;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 20px 0;
+}
+
+#image-container {
+    margin-top: 20px;
+}
+
+#image-container h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+#image-container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#image-container ul li {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#image-container ul li a {
+    color: #0e8712;
+    text-decoration: none;
+}
+
+#image-container ul li a:hover {
+    text-decoration: underline;
+}
+
+#usage-examples, #field-descriptions {
+    margin-top: 20px;
+}
+
+#usage-examples h2, #field-descriptions h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+#usage-examples code, #field-descriptions code {
+    display: block;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    color: #333;
 }

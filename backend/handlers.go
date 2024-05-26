@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -64,17 +66,17 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = tmpl.Execute(w, map[string]interface{}{
-		"Start":     newStart,
-		"Speed":     settings.Speed,
-		"ViewSpeed": settings.ViewSpeed,
-		"Fields":    fields,
+		"Start":              newStart,
+		"Speed":              settings.Speed,
+		"ViewSpeed":          settings.ViewSpeed,
+		"TimeCounterDisplay": settings.TimeCounterDisplay, // Pass the new setting
+		"Fields":             fields,
 	})
 	if err != nil {
 		log.Printf("Error executing template: %v", err)
 	}
 }
 
-// AdminHandler handles the admin page
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	// Reload settings
 	LoadSettings()
@@ -116,10 +118,22 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// Load images from the images directory
+	var images []string
+	files, err := os.ReadDir("./images")
+	if err == nil {
+		for _, file := range files {
+			if !file.IsDir() {
+				images = append(images, file.Name())
+			}
+		}
+	}
+
 	// Create a DisplayData struct to pass to the template
 	displayData := DisplayData{
 		Settings: displaySettings,
 		Fields:   fields,
+		Images:   images, // Pass images to the template
 	}
 
 	// Populate the fields with the current values
@@ -145,32 +159,35 @@ func AdminPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid view speed value", http.StatusBadRequest)
 		return
 	}
+	timeCounterDisplay, err := strconv.Atoi(r.FormValue("time_counter_display"))
+	if err != nil {
+		http.Error(w, "Invalid time counter display value", http.StatusBadRequest)
+		return
+	}
 
-	// Update settings with form values
 	settings.Start = start
 	settings.Time = time.Now().Unix()
 	settings.Speed = speed
 	settings.ViewSpeed = viewSpeed
+	settings.TimeCounterDisplay = timeCounterDisplay
 	saveSettings()
 
-	// Parse form values
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
-	// Loop over form values field_text and show_field and save them to the database
 	for i := 1; i <= 5; i++ {
 		fieldText := r.FormValue(fmt.Sprintf("field_text%d", i))
 		showField := r.FormValue(fmt.Sprintf("show_field%d", i))
+		imgSize := r.FormValue(fmt.Sprintf("img_size%d", i))
 
 		if fieldText != "" {
 			if showField == "" {
 				showField = "off"
 			}
 
-			// Use custom function to save the field to the database
-			saveField(i, fieldText, showField)
+			saveField(i, fieldText, showField, imgSize)
 		}
 	}
 
@@ -194,4 +211,36 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+}
+
+// New handler for image upload
+func UploadHandler(w http.ResponseWriter, r *http.Request) {
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		log.Printf("Error getting uploaded file: %v", err)
+		http.Error(w, "Failed to upload file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Create the images directory if it doesn't exist
+	os.MkdirAll("./images", os.ModePerm)
+
+	// Save the file to the images directory
+	out, err := os.Create(filepath.Join("./images", header.Filename))
+	if err != nil {
+		log.Printf("Error saving uploaded file: %v", err)
+		http.Error(w, "Failed to save file", http.StatusInternalServerError)
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		log.Printf("Error copying uploaded file: %v", err)
+		http.Error(w, "Failed to save file", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
