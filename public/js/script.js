@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Set initial unix timestamp
-    let unixTimestamp = Math.floor(Date.now());
+    let unixTimestamp = Date.now();
     let countElement = document.getElementById('count');
     let logoElement = document.getElementById('logo');
     let speed = parseInt(countElement.getAttribute('data-speed'), 10);
@@ -41,17 +41,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Additional script to update time every second
     setInterval(function() {
-        let timeDifference = Math.floor(Date.now()) - unixTimestamp;
+        let currentTime = Date.now();
+        let timeDifference = currentTime - unixTimestamp;
 
-        if (Math.floor(timeDifference / speed)) {
-            // Calculate new value based on time difference and speed
-            counterValue += Math.floor(timeDifference / speed);
-
+        if (timeDifference >= speed) {
+            // Calculate the number of increments missed
+            let missedIncrements = Math.floor(timeDifference / speed);
+            // Update the counter value based on missed increments
+            counterValue += missedIncrements;
+            
             if (isCounterVisible) {
                 countElement.textContent = counterValue;
             }
-            // Update unix timestamp variable
-            unixTimestamp = unixTimestamp + Math.floor(timeDifference / speed);
+            // Update unix timestamp to the last accurate update time
+            unixTimestamp += missedIncrements * speed;
         }
     }, 1000);
 });
