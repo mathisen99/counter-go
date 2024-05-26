@@ -74,6 +74,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// AdminHandler handles the admin page
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	// Reload settings
 	LoadSettings()
@@ -104,6 +105,15 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error loading fields from database: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
+	}
+
+	// Ensure there are at least 5 fields
+	for len(fields) < 5 {
+		fields = append(fields, Field{
+			ID:        len(fields) + 1,
+			FieldText: "",
+			ShowField: "off",
+		})
 	}
 
 	// Create a DisplayData struct to pass to the template
