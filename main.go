@@ -31,7 +31,7 @@ func main() {
 	fs := http.Dir("./public")
 	fileServer := http.FileServer(fs)
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/css/style.css" {
+		if len(r.URL.Path) > 4 && r.URL.Path[len(r.URL.Path)-4:] == ".css" {
 			w.Header().Set("Content-Type", "text/css")
 		}
 		fileServer.ServeHTTP(w, r)
