@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 countElement.textContent = counterValue;
             }
             // Update unix timestamp variable
-            unixTimestamp = unixTimestamp + Math.floor(timeDifference / speed)*speed;
+            unixTimestamp = math.floor(Date.now());
         }
     }, 1000);
 });
