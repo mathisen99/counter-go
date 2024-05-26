@@ -19,10 +19,14 @@ document.addEventListener("DOMContentLoaded", function() {
     logoH1Element.style.fontSize = logoFontSize + 'px'; // Apply font size to the h1 inside logo element
     logoH1Element.textContent = logoText; // Set the logo text
 
+    function formatNumber(value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + '€';
+    }
+
     function updateCounter() {
         counterValue += 1;
         if (isCounterVisible) {
-            countElement.textContent = counterValue;
+            countElement.textContent = formatNumber(counterValue);
         }
     }
 
@@ -31,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (currentIndex === fields.length) {
             isCounterVisible = true;
-            countElement.textContent = counterValue;
+            countElement.textContent = formatNumber(counterValue);
             logoElement.style.display = 'block';
             setTimeout(switchDisplay, timeCounterDisplay);
         } else {
