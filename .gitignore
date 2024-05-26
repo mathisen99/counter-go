@@ -1,0 +1,58 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of the build process
+bin/
+dist/
+
+# Temporary files
+*.log
+*.pid
+*.pid.lock
+
+# Editor and IDE specific files
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Go specific
+*.out
+*.test
+*.cover
+
+# Vendor directory
+vendor/
+
+# Dependencies
+/go/pkg/
+/go/bin/
+/go/src/
+/go/pkg/mod/
+
+# Module files
+/go.sum
+
+# Compiled binary
+main
+
+# Static files
+public/js/script.js
+public/css/style.css
+
+# SQLite database file
+settings.db
+
+# Cover file
+coverage.out
+
+# Environment variables file
+.env
