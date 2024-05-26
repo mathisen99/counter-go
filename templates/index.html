@@ -9,10 +9,10 @@
 <body>
     <div class="center-container">
         <div class="logo" id="logo">
-            <h1>Generated Funds</h1>
+            <h1></h1>
         </div>
         <div class="counter">
-            <h1 id="count" data-speed="{{.Speed}}" data-viewspeed="{{.ViewSpeed}}" data-time-counter-display="{{.TimeCounterDisplay}}" data-fields='{{range .Fields}}{{if eq .ShowField "on"}}{{.FieldText}}|{{end}}{{end}}'>{{.Start}}</h1>
+            <h1 id="count" data-speed="{{.Speed}}" data-viewspeed="{{.ViewSpeed}}" data-time-counter-display="{{.TimeCounterDisplay}}" data-fontsize="{{.FontSize}}" data-logotext="{{.LogoText}}" data-logofontsize="{{.LogoFontSize}}" data-fields='{{range .Fields}}{{if eq .ShowField "on"}}{{.FieldText}}|{{end}}{{end}}'>{{.Start}}</h1>
         </div>
     </div>
     <script src="/public/js/script.js"></script>

@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +15,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/nfnt/resize"
 )
 
 var (
@@ -69,7 +74,10 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		"Start":              newStart,
 		"Speed":              settings.Speed,
 		"ViewSpeed":          settings.ViewSpeed,
-		"TimeCounterDisplay": settings.TimeCounterDisplay, // Pass the new setting
+		"TimeCounterDisplay": settings.TimeCounterDisplay,
+		"FontSize":           settings.FontSize,
+		"LogoText":           settings.LogoText,
+		"LogoFontSize":       settings.LogoFontSize,
 		"Fields":             fields,
 	})
 	if err != nil {
@@ -77,6 +85,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// AdminHandler handles the admin page
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	// Reload settings
 	LoadSettings()
@@ -133,7 +142,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	displayData := DisplayData{
 		Settings: displaySettings,
 		Fields:   fields,
-		Images:   images, // Pass images to the template
+		Images:   images,
 	}
 
 	// Populate the fields with the current values
@@ -164,30 +173,47 @@ func AdminPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid time counter display value", http.StatusBadRequest)
 		return
 	}
+	fontSize, err := strconv.Atoi(r.FormValue("font_size"))
+	if err != nil {
+		http.Error(w, "Invalid font size value", http.StatusBadRequest)
+		return
+	}
+	logoText := r.FormValue("logo_text")
+	logoFontSize, err := strconv.Atoi(r.FormValue("logo_font_size"))
+	if err != nil {
+		http.Error(w, "Invalid logo font size value", http.StatusBadRequest)
+		return
+	}
 
+	// Update settings with form values
 	settings.Start = start
 	settings.Time = time.Now().Unix()
 	settings.Speed = speed
 	settings.ViewSpeed = viewSpeed
 	settings.TimeCounterDisplay = timeCounterDisplay
+	settings.FontSize = fontSize
+	settings.LogoText = logoText
+	settings.LogoFontSize = logoFontSize
 	saveSettings()
 
+	// Parse form values
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
+	// Loop over form values field_text and show_field and save them to the database
 	for i := 1; i <= 5; i++ {
 		fieldText := r.FormValue(fmt.Sprintf("field_text%d", i))
 		showField := r.FormValue(fmt.Sprintf("show_field%d", i))
-		imgSize := r.FormValue(fmt.Sprintf("img_size%d", i))
 
 		if fieldText != "" {
 			if showField == "" {
 				showField = "off"
 			}
 
-			saveField(i, fieldText, showField, imgSize)
+			// Use custom function to save the field to the database
+			saveField(i, fieldText, showField)
 		}
 	}
 
@@ -227,7 +253,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	os.MkdirAll("./images", os.ModePerm)
 
 	// Save the file to the images directory
-	out, err := os.Create(filepath.Join("./images", header.Filename))
+	filePath := filepath.Join("./images", header.Filename)
+	out, err := os.Create(filePath)
 	if err != nil {
 		log.Printf("Error saving uploaded file: %v", err)
 		http.Error(w, "Failed to save file", http.StatusInternalServerError)
@@ -242,5 +269,53 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Generate thumbnail
+	err = generateThumbnail(filePath, header.Filename)
+	if err != nil {
+		log.Printf("Error generating thumbnail: %v", err)
+		http.Error(w, "Failed to generate thumbnail", http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+}
+
+func generateThumbnail(filePath, fileName string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Decode the image
+	var img image.Image
+	if filepath.Ext(fileName) == ".png" {
+		img, err = png.Decode(file)
+	} else if filepath.Ext(fileName) == ".jpg" || filepath.Ext(fileName) == ".jpeg" {
+		img, err = jpeg.Decode(file)
+	} else {
+		return fmt.Errorf("unsupported image format")
+	}
+	if err != nil {
+		return err
+	}
+
+	// Resize the image to a thumbnail
+	thumb := resize.Resize(100, 0, img, resize.Lanczos3)
+
+	// Create thumbnail file
+	thumbPath := filepath.Join("./images", "thumb_"+fileName)
+	out, err := os.Create(thumbPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Encode the thumbnail to disk
+	if filepath.Ext(fileName) == ".png" {
+		err = png.Encode(out, thumb)
+	} else {
+		err = jpeg.Encode(out, thumb, nil)
+	}
+	return err
 }
