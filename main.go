@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"counter/backend"
 
@@ -31,8 +32,12 @@ func main() {
 	fs := http.Dir("./public")
 	fileServer := http.FileServer(fs)
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if len(r.URL.Path) > 4 && r.URL.Path[len(r.URL.Path)-4:] == ".css" {
+		ext := filepath.Ext(r.URL.Path)
+		switch ext {
+		case ".css":
 			w.Header().Set("Content-Type", "text/css")
+		case ".ttf":
+			w.Header().Set("Content-Type", "font/ttf")
 		}
 		fileServer.ServeHTTP(w, r)
 	})))
