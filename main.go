@@ -4,28 +4,34 @@ import (
 	"log"
 	"net/http"
 
-	"counter/backend" // Replace with your actual import path
+	"github.com/gorilla/mux"
+
+	"counter/backend"
 )
 
 func main() {
 	// Initialize the database
 	err := backend.InitDB()
 	if err != nil {
-		log.Fatalf("Failed to initialize the database: %v", err)
+		log.Fatalf("Error initializing database: %v", err)
 	}
 	defer backend.CloseDB()
 
-	// Serve static files
+	router := mux.NewRouter()
+
+	// Serve static files from the "public" directory
 	fs := http.FileServer(http.Dir("public"))
-	http.Handle("/public/", http.StripPrefix("/public/", fs))
+	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
 
-	// Register handlers
-	http.HandleFunc("/", backend.HomeHandler)
-	http.HandleFunc("/admin", backend.AdminHandler)
-	http.HandleFunc("/admin", backend.AdminPostHandler)
-	http.HandleFunc("/update", backend.UpdateHandler)
+	// Define routes
+	router.HandleFunc("/", backend.HomeHandler).Methods("GET")
+	router.HandleFunc("/admin", backend.AdminHandler).Methods("GET")
+	router.HandleFunc("/admin", backend.AdminPostHandler).Methods("POST")
+	router.HandleFunc("/update", backend.UpdateHandler).Methods("POST")
 
-	// Start the server
+	// Load settings on startup
+	backend.LoadSettings()
+
 	log.Println("Server running on port 3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":3000", router))
 }
