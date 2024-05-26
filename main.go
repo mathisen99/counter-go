@@ -3,15 +3,23 @@ package main
 import (
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
+	"os"
 
 	"counter/backend"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
+	// Print the current working directory
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Error getting current working directory: %v", err)
+	}
+	log.Println("Current working directory:", dir)
+
 	// Initialize the database
-	err := backend.InitDB()
+	err = backend.InitDB()
 	if err != nil {
 		log.Fatalf("Error initializing database: %v", err)
 	}
@@ -19,9 +27,15 @@ func main() {
 
 	router := mux.NewRouter()
 
-	// Serve static files from the "public" directory
-	fs := http.FileServer(http.Dir("public"))
-	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
+	// Serve static files from the "public" directory with correct MIME types
+	fs := http.Dir("./public")
+	fileServer := http.FileServer(fs)
+	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/css/style.css" {
+			w.Header().Set("Content-Type", "text/css")
+		}
+		fileServer.ServeHTTP(w, r)
+	})))
 
 	// Define routes
 	router.HandleFunc("/", backend.HomeHandler).Methods("GET")
